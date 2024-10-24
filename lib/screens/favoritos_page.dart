@@ -48,7 +48,7 @@ class _FavoritosPageState extends State<FavoritosPage> {
                 final noticia = noticias[index];
                 return ListTile(
                   leading: CachedNetworkImage(
-                    imageUrl: noticia.urlToImage ?? '',
+                    imageUrl: noticia.imagenUrl ?? '',
                     placeholder: (context, url) =>
                         const CircularProgressIndicator(),
                     errorWidget: (context, url, error) =>

@@ -3,41 +3,42 @@ import '../models/noticia.dart';
 import '../services/NewsService.dart';
 import 'detalle_noticia.dart';
 import 'noticias_search_delegate.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class NoticiasPage extends StatefulWidget {
   @override
   _NoticiasPageState createState() => _NoticiasPageState();
 }
 
+final List<String> categories = [
+  'general',
+  'business',
+  'entertainment',
+  'health',
+  'science',
+  'sports',
+  'technology',
+];
+
 class _NoticiasPageState extends State<NoticiasPage>
     with SingleTickerProviderStateMixin {
-  final NewsService _newsService = NewsService();
+  final NewsService _newsServices = NewsService();
   late Future<List<Noticia>> _futureNoticias;
   late TabController _tabController;
-
-  final List<String> category = [
-    'general',
-    'business',
-    'entertainment',
-    'health',
-    'science',
-    'sports',
-    'technology',
-  ];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: category.length, vsync: this);
+    _tabController = TabController(length: categories.length, vsync: this);
     _tabController.addListener(_onTabChanged);
-    _futureNoticias = _newsService.fetchNews(category: category[0]);
+    _futureNoticias = _newsServices.fetchNews();
   }
 
   void _onTabChanged() {
-    if (!_tabController.indexIsChanging) {
-      String selectedCategory = category[_tabController.index];
+    if (_tabController.indexIsChanging) {
+      String selectedCategory = categories[_tabController.index];
       setState(() {
-        _futureNoticias = _newsService.fetchNews(category: selectedCategory);
+        _futureNoticias = _newsServices.fetchNews(category: selectedCategory);
       });
     }
   }
@@ -56,7 +57,7 @@ class _NoticiasPageState extends State<NoticiasPage>
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
-          tabs: category.map((category) {
+          tabs: categories.map((category) {
             return Tab(text: category.toUpperCase());
           }).toList(),
         ),
@@ -77,8 +78,6 @@ class _NoticiasPageState extends State<NoticiasPage>
           } else if (snapshot.hasError) {
             return Center(child: Text('Error al cargar noticias'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            print(snapshot.hasData);
-            print(snapshot.data);
             return Center(child: Text('No hay noticias disponibles'));
           } else {
             final noticias = snapshot.data!;
@@ -87,22 +86,29 @@ class _NoticiasPageState extends State<NoticiasPage>
               itemBuilder: (context, index) {
                 final noticia = noticias[index];
                 return ListTile(
-                  leading: (noticia.urlToImage.isNotEmpty)
-                      ? Image.network(
-                          noticia.urlToImage,
-                          width: 100,
-                          fit: BoxFit.cover,
-                        )
-                      : Container(width: 100, color: Colors.grey),
-                  title: Text(noticia.titulo),
-                  subtitle: Text(noticia.descripcion),
+                  leading: CachedNetworkImage(
+                    imageUrl: noticia.imagenUrl,
+                    placeholder: (context, url) => CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    width: 100,
+                    fit: BoxFit.cover,
+                  ),
+                  title: Text(
+                    noticia.titulo,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    noticia.descripcion,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   onTap: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              DetalleNoticia(noticia: noticia),
-                        ));
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetalleNoticia(noticia: noticia),
+                      ),
+                    );
                   },
                 );
               },

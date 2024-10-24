@@ -1,4 +1,3 @@
-// lib/screens/noticias_search_delegate.dart
 import 'package:flutter/material.dart';
 import '../models/noticia.dart';
 import '../services/NewsService.dart';
@@ -47,9 +46,9 @@ class NoticiasSearchDelegate extends SearchDelegate {
             itemBuilder: (context, index) {
               final noticia = noticias[index];
               return ListTile(
-                leading: (noticia.urlToImage.isNotEmpty)
+                leading: (noticia.imagenUrl.isNotEmpty)
                     ? Image.network(
-                        noticia.urlToImage,
+                        noticia.imagenUrl,
                         width: 100,
                         fit: BoxFit.cover,
                       )

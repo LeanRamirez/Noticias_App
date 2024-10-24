@@ -20,8 +20,7 @@ class FavoritesService {
     final prefs = await SharedPreferences.getInstance();
     final currentFavorites = prefs.getStringList(_favoritesKey) ?? [];
 
-    currentFavorites.add(
-        jsonEncode(noticia.toJson())); // Convertimos la noticia a JSON string
+    currentFavorites.add(jsonEncode(noticia.toJson()));
 
     await prefs.setStringList(_favoritesKey, currentFavorites);
   }
