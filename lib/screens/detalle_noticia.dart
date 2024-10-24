@@ -17,7 +17,8 @@ class DetalleNoticia extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (noticia.imagenURL.isNotEmpty) Image.network(noticia.imagenURL),
+            if (noticia.urlToImage.isNotEmpty)
+              Image.network(noticia.urlToImage),
             SizedBox(height: 16.0),
             Text(
               noticia.titulo,
